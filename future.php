@@ -31,7 +31,7 @@
         }
 
         .card-header {
-            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             font-size: 26px;
             font-weight: 700;
@@ -195,16 +195,29 @@
 
         <div class="card-header">
             <div class="header-title">
-                <i class="bi bi-jira"></i> Jira Work Logger
+                <i class="bi bi-calendar-plus"></i> Jira Future Planner
             </div>
-            <a href="future.php" class="btn btn-light btn-sm fw-bold">
-                <i class="bi bi-calendar-plus"></i> Future Tasks Planner
+            <a href="index.php" class="btn btn-light btn-sm fw-bold">
+                <i class="bi bi-clock-history"></i> Daily Logger
             </a>
         </div>
 
         <div class="card-body">
 
-            <form id="jiraForm">
+            <form id="futureForm">
+
+                <div class="mb-4 p-4 rounded-3" style="background:#f1f5f9; border: 1px solid #cbd5e1;">
+                    <label class="form-label text-primary">
+                        <i class="bi bi-calendar-event"></i> Target Date for all tasks
+                    </label>
+                    <input
+                        type="date"
+                        class="form-control"
+                        name="global_date"
+                        style="max-width: 250px;"
+                        required
+                    >
+                </div>
 
                 <div id="taskContainer">
 
@@ -213,7 +226,6 @@
 
                         <div class="row">
 
-                            <!-- FIRST ROW (12 Cols) -->
                             <div class="col-md-2 mb-3">
 
                                 <label class="form-label">
@@ -262,10 +274,10 @@
 
                             </div>
 
-                            <div class="col-md-2 mb-3">
+                            <div class="col-md-3 mb-3">
 
                                 <label class="form-label">
-                                    Time
+                                    Time Estimate
                                 </label>
 
                                 <input
@@ -273,21 +285,6 @@
                                     class="form-control"
                                     name="time[]"
                                     placeholder="2h"
-                                    required
-                                >
-
-                            </div>
-
-                            <div class="col-md-3 mb-3">
-
-                                <label class="form-label">
-                                    Start Date
-                                </label>
-
-                                <input
-                                    type="date"
-                                    class="form-control"
-                                    name="start_date[]"
                                     required
                                 >
 
@@ -327,22 +324,7 @@
 
                             </div>
 
-                            <div class="col-md-3 mb-3">
-
-                                <label class="form-label">
-                                    Due Date
-                                </label>
-
-                                <input
-                                    type="date"
-                                    class="form-control"
-                                    name="due_date[]"
-                                    required
-                                >
-
-                            </div>
-
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-4 mb-3">
 
                                 <label class="form-label">
                                     Task Size
@@ -501,7 +483,7 @@ document.addEventListener('change', function(e) {
 });
 
 document
-    .getElementById('jiraForm')
+    .getElementById('futureForm')
     .addEventListener('submit', async function(e) {
 
         e.preventDefault();
@@ -510,7 +492,7 @@ document
             document.getElementById('responseBox');
 
         responseBox.innerHTML =
-            'Processing...\n';
+            'Planning Tasks...\n';
 
         const formData =
             new FormData(this);
@@ -518,7 +500,7 @@ document
         try {
 
             const response = await fetch(
-                'process.php',
+                'process_future.php',
                 {
                     method: 'POST',
                     body: formData
