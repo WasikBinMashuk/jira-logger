@@ -3,17 +3,24 @@
 
 class JiraLogger
 {
-    private $baseUrl =
-    'https://sslwireless.atlassian.net';
+    private $baseUrl;
+    private $email;
+    private $apiToken;
+    public $accountId;
 
-    private $email =
-    'wasik.mashuk@sslwireless.com';
-
-    private $apiToken =
-    'ATATT3xFfGF0bUmtceTqOZ-goQMPUNPST7LADZrcI_tYUisKS2KHhezDO0BH74d3cDYERLOrKrcFy3-dlJQhDZKuKgMcV5Kf-LZCBfDccClB2DuCKnJrz3ewUwbekGvwOdegpBfdnf6g4dzaX6yZpiR6UMbPRHIIaVVGCCtSeRTH4eI3IsjPGc0=6DE14BD5';
-
-    public $accountId =
-    '712020:4b73bf1d-14fe-4b2a-968c-197f23f80326';
+    public function __construct()
+    {
+        $envFile = __DIR__ . '/.env';
+        if (file_exists($envFile)) {
+            $env = parse_ini_file($envFile);
+            $this->baseUrl = $env['JIRA_BASE_URL'] ?? '';
+            $this->email = $env['JIRA_EMAIL'] ?? '';
+            $this->apiToken = $env['JIRA_API_TOKEN'] ?? '';
+            $this->accountId = $env['JIRA_ACCOUNT_ID'] ?? '';
+        } else {
+            die("Error: .env file not found. Please create one from .env.example\n");
+        }
+    }
 
     private function request(
         $method,
@@ -128,13 +135,13 @@ class JiraLogger
                 'issuetype' => [
                     'name' => 'Task'
                 ],
-                
+
                 'priority' => [
                     'id' => '3' // Major
                 ],
 
                 'customfield_10800' => $startDate, // Start date
-                
+
                 'customfield_10945' => [
                     'id' => $taskCategory // Task Category
                 ],
@@ -279,7 +286,7 @@ $times =
 
 $projects =
     $_POST['project_key'];
-    
+
 $startDates =
     $_POST['start_date'];
 
