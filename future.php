@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <style>
 
@@ -211,11 +212,13 @@
                         <i class="bi bi-calendar-event"></i> Target Date for all tasks
                     </label>
                     <input
-                        type="date"
-                        class="form-control"
+                        type="text"
+                        class="form-control date-picker"
                         name="global_date"
-                        style="max-width: 250px;"
+                        placeholder="YYYY-MM-DD"
+                        style="max-width: 250px; cursor: pointer; background-color: #fff;"
                         required
+                        readonly
                     >
                 </div>
 
@@ -226,7 +229,7 @@
 
                         <div class="row">
 
-                            <div class="col-md-2 mb-3">
+                            <div class="col-md-3 mb-3">
 
                                 <label class="form-label">
                                     Project
@@ -254,11 +257,15 @@
                                         Easy Merchant App
                                     </option>
 
+                                    <option value="EMIL">
+                                        EMIL
+                                    </option>
+
                                 </select>
 
                             </div>
 
-                            <div class="col-md-5 mb-3">
+                            <div class="col-md-7 mb-3">
 
                                 <label class="form-label">
                                     Task Title
@@ -274,7 +281,7 @@
 
                             </div>
 
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-2 mb-3">
 
                                 <label class="form-label">
                                     Time Estimate
@@ -416,7 +423,14 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
+
+// Initialize flatpickr on page load
+flatpickr(".date-picker", {
+    dateFormat: "Y-m-d",
+    allowInput: true
+});
 
 const container =
     document.getElementById('taskContainer');
@@ -433,6 +447,11 @@ document
 
         clone.querySelectorAll('input').forEach(input => {
             input.value = '';
+            // Reset flatpickr specifics if cloned
+            if (input.classList.contains('flatpickr-input')) {
+                input.classList.remove('flatpickr-input', 'active');
+                input.removeAttribute('readonly');
+            }
         });
 
         clone.querySelectorAll('select').forEach(select => {
@@ -442,6 +461,12 @@ document
 
         container.appendChild(clone);
         updateTaskNumbers();
+        
+        // Re-initialize flatpickr on the new row only
+        flatpickr(clone.querySelectorAll(".date-picker"), {
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
     });
 
 function updateTaskNumbers() {

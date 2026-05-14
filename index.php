@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <style>
 
@@ -195,7 +196,7 @@
 
         <div class="card-header">
             <div class="header-title">
-                <i class="bi bi-jira"></i> Jira Work Logger
+                <i class="bi bi-jira"></i> Daily Jira Work Logger
             </div>
             <a href="future.php" class="btn btn-light btn-sm fw-bold">
                 <i class="bi bi-calendar-plus"></i> Future Tasks Planner
@@ -214,7 +215,7 @@
                         <div class="row">
 
                             <!-- FIRST ROW (12 Cols) -->
-                            <div class="col-md-2 mb-3">
+                            <div class="col-md-3 mb-3">
 
                                 <label class="form-label">
                                     Project
@@ -242,11 +243,15 @@
                                         Easy Merchant App
                                     </option>
 
+                                    <option value="EMIL">
+                                        EMI Locker
+                                    </option>
+
                                 </select>
 
                             </div>
 
-                            <div class="col-md-5 mb-3">
+                            <div class="col-md-7 mb-3">
 
                                 <label class="form-label">
                                     Task Title
@@ -278,71 +283,44 @@
 
                             </div>
 
-                            <div class="col-md-3 mb-3">
+                            <!-- SECOND ROW (12 Cols) -->
+                            <div class="col-md-4 mb-3">
 
                                 <label class="form-label">
                                     Start Date
                                 </label>
 
                                 <input
-                                    type="date"
-                                    class="form-control"
+                                    type="text"
+                                    class="form-control date-picker"
                                     name="start_date[]"
+                                    placeholder="YYYY-MM-DD"
                                     required
+                                    readonly
+                                    style="cursor: pointer; background-color: #fff;"
                                 >
 
                             </div>
 
-                            <!-- SECOND ROW (12 Cols) -->
-                            <div class="col-md-6 mb-3">
-
-                                <label class="form-label">
-                                    Task Category
-                                </label>
-
-                                <select
-                                    class="form-select"
-                                    name="task_category[]"
-                                    required
-                                >
-                                    <option value="">Select</option>
-                                    <option value="10565">Business Requirement Analysis</option>
-                                    <option value="10566" selected>Development & Unit Testing</option>
-                                    <option value="10567">Technical Analysis</option>
-                                    <option value="10568">UX Design</option>
-                                    <option value="10569">Technical Design</option>
-                                    <option value="10570">Bug fix</option>
-                                    <option value="10571">Deployment</option>
-                                    <option value="10572">Code Review</option>
-                                    <option value="10573">Testing and UAT</option>
-                                    <option value="10574">Support & Monitoring</option>
-                                    <option value="10575">Team Management</option>
-                                    <option value="10576">Meeting</option>
-                                    <option value="10653">RnD</option>
-                                    <option value="10656">Product Management</option>
-                                    <option value="10669">PMO - Follow Up</option>
-                                    <option value="10671">PMO - Scrum Meeting</option>
-                                    <option value="10672">PMO - BRD/SRS/Project Schedule</option>
-                                </select>
-
-                            </div>
-
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-4 mb-3">
 
                                 <label class="form-label">
                                     Due Date
                                 </label>
 
                                 <input
-                                    type="date"
-                                    class="form-control"
+                                    type="text"
+                                    class="form-control date-picker"
                                     name="due_date[]"
+                                    placeholder="YYYY-MM-DD"
                                     required
+                                    readonly
+                                    style="cursor: pointer; background-color: #fff;"
                                 >
 
                             </div>
 
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-4 mb-3">
 
                                 <label class="form-label">
                                     Task Size
@@ -378,6 +356,40 @@
                                         Extra Large (XL)
                                     </option>
 
+                                </select>
+
+                            </div>
+
+                            <!-- THIRD ROW (12 Cols) -->
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Task Category
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    name="task_category[]"
+                                    required
+                                >
+                                    <option value="">Select</option>
+                                    <option value="10565">Business Requirement Analysis</option>
+                                    <option value="10566" selected>Development & Unit Testing</option>
+                                    <option value="10567">Technical Analysis</option>
+                                    <option value="10568">UX Design</option>
+                                    <option value="10569">Technical Design</option>
+                                    <option value="10570">Bug fix</option>
+                                    <option value="10571">Deployment</option>
+                                    <option value="10572">Code Review</option>
+                                    <option value="10573">Testing and UAT</option>
+                                    <option value="10574">Support & Monitoring</option>
+                                    <option value="10575">Team Management</option>
+                                    <option value="10576">Meeting</option>
+                                    <option value="10653">RnD</option>
+                                    <option value="10656">Product Management</option>
+                                    <option value="10669">PMO - Follow Up</option>
+                                    <option value="10671">PMO - Scrum Meeting</option>
+                                    <option value="10672">PMO - BRD/SRS/Project Schedule</option>
                                 </select>
 
                             </div>
@@ -434,7 +446,14 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
+
+// Initialize flatpickr on page load
+flatpickr(".date-picker", {
+    dateFormat: "Y-m-d",
+    allowInput: true
+});
 
 const container =
     document.getElementById('taskContainer');
@@ -451,6 +470,11 @@ document
 
         clone.querySelectorAll('input').forEach(input => {
             input.value = '';
+            // Reset flatpickr specifics if cloned
+            if (input.classList.contains('flatpickr-input')) {
+                input.classList.remove('flatpickr-input', 'active');
+                input.removeAttribute('readonly');
+            }
         });
 
         clone.querySelectorAll('select').forEach(select => {
@@ -460,6 +484,12 @@ document
 
         container.appendChild(clone);
         updateTaskNumbers();
+        
+        // Re-initialize flatpickr on the new row only
+        flatpickr(clone.querySelectorAll(".date-picker"), {
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
     });
 
 function updateTaskNumbers() {
@@ -494,7 +524,11 @@ document.addEventListener('change', function(e) {
         if (row) {
             const dueDate = row.querySelector('input[name="due_date[]"]');
             if (dueDate) {
-                dueDate.value = e.target.value;
+                if (dueDate._flatpickr) {
+                    dueDate._flatpickr.setDate(e.target.value);
+                } else {
+                    dueDate.value = e.target.value;
+                }
             }
         }
     }
