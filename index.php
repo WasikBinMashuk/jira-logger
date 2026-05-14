@@ -8,45 +8,174 @@
     <title>Jira Bulk Logger</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
 
         body {
-            background: #f3f4f6;
+            background: linear-gradient(135deg, #f6f8fb 0%, #e5ebf4 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 50px;
         }
 
         .main-card {
             max-width: 1400px;
             margin: 40px auto;
             border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            background: #ffffff;
+            overflow: hidden;
         }
 
         .card-header {
-            background: #0d6efd;
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
             color: white;
-            font-size: 24px;
-            font-weight: bold;
-            padding: 20px;
+            font-size: 26px;
+            font-weight: 700;
+            padding: 25px 30px;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-body {
+            padding: 40px 30px;
         }
 
         .task-row {
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            background: white;
+            border: 1px solid #eef0f3;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            background: #fafbfc;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .task-row:hover {
+            border-color: #dce0e5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            background: #ffffff;
+        }
+
+        .task-number {
+            font-size: 0.85rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+
+        .btn {
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: #fca5a5;
+            color: #991b1b;
+        }
+
+        .btn-success {
+            background: #e6f4ea;
+            color: #0f5132;
+            border: none;
+        }
+
+        .btn-success:hover {
+            background: #c3e6cb;
+            color: #0f5132;
+        }
+
+        .btn-primary {
+            background: #0d6efd;
+            border: none;
+            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #0b5ed7;
+            box-shadow: 0 6px 15px rgba(13, 110, 253, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 2px 5px rgba(239, 68, 68, 0.3);
+            border: 2px solid white;
+            z-index: 10;
+        }
+
+        .remove-btn:hover {
+            background: #dc2626;
+            color: white;
+            transform: scale(1.1);
         }
 
         .response-box {
-            background: #111827;
-            color: #22c55e;
+            background: #0f172a;
+            color: #38bdf8;
             min-height: 250px;
-            border-radius: 10px;
-            padding: 20px;
-            font-family: monospace;
+            border-radius: 16px;
+            padding: 25px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
             white-space: pre-wrap;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+            border: 1px solid #1e293b;
+        }
+
+        .response-box-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #1e293b;
+            font-weight: 700;
         }
 
     </style>
@@ -59,7 +188,7 @@
     <div class="card main-card">
 
         <div class="card-header">
-            Jira Bulk Time Logger
+            <i class="bi bi-jira"></i> Jira Work Logger
         </div>
 
         <div class="card-body">
@@ -69,9 +198,11 @@
                 <div id="taskContainer">
 
                     <div class="task-row">
+                        <h6 class="task-number badge bg-secondary mb-3">Task #1</h6>
 
                         <div class="row">
 
+                            <!-- FIRST ROW (12 Cols) -->
                             <div class="col-md-2 mb-3">
 
                                 <label class="form-label">
@@ -89,22 +220,22 @@
                                     </option>
 
                                     <option value="HON">
-                                        HON
+                                        HONDA
                                     </option>
 
                                     <option value="BANK">
-                                        BANK
+                                        BANK CRM
                                     </option>
 
                                     <option value="EMA">
-                                        EMA
+                                        Easy Merchant App
                                     </option>
 
                                 </select>
 
                             </div>
 
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-5 mb-3">
 
                                 <label class="form-label">
                                     Task Title
@@ -114,13 +245,13 @@
                                     type="text"
                                     class="form-control"
                                     name="title[]"
-                                    placeholder="Fix login issue"
+                                    placeholder="Enter task title"
                                     required
                                 >
 
                             </div>
 
-                            <div class="col-md-1 mb-3">
+                            <div class="col-md-2 mb-3">
 
                                 <label class="form-label">
                                     Time
@@ -136,7 +267,23 @@
 
                             </div>
 
-                            <div class="col-md-2 mb-3">
+                            <div class="col-md-3 mb-3">
+
+                                <label class="form-label">
+                                    Start Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="start_date[]"
+                                    required
+                                >
+
+                            </div>
+
+                            <!-- SECOND ROW (12 Cols) -->
+                            <div class="col-md-6 mb-3">
 
                                 <label class="form-label">
                                     Task Category
@@ -169,22 +316,7 @@
 
                             </div>
 
-                            <div class="col-md-2 mb-3">
-
-                                <label class="form-label">
-                                    Start Date
-                                </label>
-
-                                <input
-                                    type="date"
-                                    class="form-control"
-                                    name="start_date[]"
-                                    required
-                                >
-
-                            </div>
-
-                            <div class="col-md-2 mb-3">
+                            <div class="col-md-3 mb-3">
 
                                 <label class="form-label">
                                     Due Date
@@ -199,7 +331,7 @@
 
                             </div>
 
-                            <div class="col-md-2 mb-3">
+                            <div class="col-md-3 mb-3">
 
                                 <label class="form-label">
                                     Task Size
@@ -243,48 +375,47 @@
 
                         <button
                             type="button"
-                            class="btn btn-danger remove-btn"
+                            class="btn remove-btn"
+                            title="Remove Task"
                         >
-                            Remove
+                            <i class="bi bi-x"></i>
                         </button>
 
                     </div>
 
                 </div>
 
-                <div class="d-flex gap-3">
+                <div class="d-flex gap-3 mt-4">
 
                     <button
                         type="button"
                         id="addMore"
                         class="btn btn-success"
                     >
-                        Add More
+                        <i class="bi bi-plus-circle me-1"></i> Add Another Task
                     </button>
 
                     <button
                         type="submit"
                         class="btn btn-primary"
                     >
-                        Submit All Tasks
+                        <i class="bi bi-cloud-arrow-up me-1"></i> Submit All Tasks
                     </button>
 
                 </div>
 
             </form>
 
-            <hr class="my-4">
+            <hr class="my-5">
 
-            <h5>
-                Response
+            <h5 class="response-box-title">
+                <i class="bi bi-terminal"></i> Response Log
             </h5>
 
             <div
                 class="response-box"
                 id="responseBox"
-            >
-Waiting for submission...
-            </div>
+            >System ready. Waiting for task submission...</div>
 
         </div>
 
@@ -316,19 +447,31 @@ document
         });
 
         container.appendChild(clone);
+        updateTaskNumbers();
     });
+
+function updateTaskNumbers() {
+    const rows = document.querySelectorAll('.task-row');
+    rows.forEach((row, index) => {
+        const numberElement = row.querySelector('.task-number');
+        if (numberElement) {
+            numberElement.textContent = `Task #${index + 1}`;
+        }
+    });
+}
 
 document.addEventListener('click', function(e) {
 
-    if (
-        e.target.classList.contains('remove-btn')
-    ) {
+    const removeBtn = e.target.closest('.remove-btn');
+
+    if (removeBtn) {
 
         const rows =
             document.querySelectorAll('.task-row');
 
         if (rows.length > 1) {
-            e.target.closest('.task-row').remove();
+            removeBtn.closest('.task-row').remove();
+            updateTaskNumbers();
         }
     }
 });
