@@ -14,14 +14,7 @@ if (file_exists($projectsFile)) {
     }
 }
 
-if (empty($projects)) {
-    $projects = [
-        ['key' => 'HON', 'title' => 'HONDA'],
-        ['key' => 'BANK', 'title' => 'BANK CRM'],
-        ['key' => 'EMA', 'title' => 'Easy Merchant App'],
-        ['key' => 'EMIL', 'title' => 'EMI Locker']
-    ];
-}
+// If projects.json is missing or empty, show only the placeholder.
 ?>
 <!DOCTYPE html>
 <html lang="en">
