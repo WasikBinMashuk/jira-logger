@@ -4,6 +4,24 @@ $env = [];
 if (file_exists($envFile)) {
     $env = parse_ini_file($envFile);
 }
+
+$projectsFile = __DIR__ . '/projects.json';
+$projects = [];
+if (file_exists($projectsFile)) {
+    $projectsData = json_decode(file_get_contents($projectsFile), true);
+    if (is_array($projectsData)) {
+        $projects = $projectsData;
+    }
+}
+
+if (empty($projects)) {
+    $projects = [
+        ['key' => 'HON', 'title' => 'HONDA'],
+        ['key' => 'BANK', 'title' => 'BANK CRM'],
+        ['key' => 'EMA', 'title' => 'Easy Merchant App'],
+        ['key' => 'EMIL', 'title' => 'EMI Locker']
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -352,21 +370,11 @@ if (file_exists($envFile)) {
                                         Select
                                     </option>
 
-                                    <option value="HON">
-                                        HONDA
-                                    </option>
-
-                                    <option value="BANK">
-                                        BANK CRM
-                                    </option>
-
-                                    <option value="EMA">
-                                        Easy Merchant App
-                                    </option>
-
-                                    <option value="EMIL">
-                                        EMIL
-                                    </option>
+                                    <?php foreach ($projects as $project) { ?>
+                                        <option value="<?php echo htmlspecialchars($project['key']); ?>">
+                                            <?php echo htmlspecialchars($project['title']); ?>
+                                        </option>
+                                    <?php } ?>
 
                                 </select>
 

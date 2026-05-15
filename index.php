@@ -4,6 +4,24 @@ $env = [];
 if (file_exists($envFile)) {
     $env = parse_ini_file($envFile);
 }
+
+$projectsFile = __DIR__ . '/projects.json';
+$projects = [];
+if (file_exists($projectsFile)) {
+    $projectsData = json_decode(file_get_contents($projectsFile), true);
+    if (is_array($projectsData)) {
+        $projects = $projectsData;
+    }
+}
+
+if (empty($projects)) {
+    $projects = [
+        ['key' => 'HON', 'title' => 'HONDA'],
+        ['key' => 'BANK', 'title' => 'BANK CRM'],
+        ['key' => 'EMA', 'title' => 'Easy Merchant App'],
+        ['key' => 'EMIL', 'title' => 'EMI Locker']
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -179,6 +197,33 @@ if (file_exists($envFile)) {
             background: #ffffff;
         }
 
+        .projects-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .projects-table tbody td {
+            border-bottom: 0;
+        }
+
+        .projects-table tbody tr {
+            position: relative;
+        }
+
+        .projects-table tbody tr::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .projects-table tbody tr:last-child::after {
+            display: none;
+        }
+
         .btn {
             border-radius: 12px;
             padding: 10px 20px;
@@ -303,6 +348,9 @@ if (file_exists($envFile)) {
                 <button type="button" class="btn btn-dark btn-sm fw-bold me-2" data-bs-toggle="modal" data-bs-target="#settingsModal">
                     <i class="bi bi-gear-fill"></i>
                 </button>
+                <button type="button" class="btn btn-light btn-sm fw-bold me-2" data-bs-toggle="modal" data-bs-target="#projectsModal">
+                    <i class="bi bi-folder2-open"></i> Projects
+                </button>
                 <a href="future.php" class="btn btn-light btn-sm fw-bold">
                     <i class="bi bi-calendar-plus"></i> Future Tasks Planner
                 </a>
@@ -337,21 +385,11 @@ if (file_exists($envFile)) {
                                         Select
                                     </option>
 
-                                    <option value="HON">
-                                        HONDA
-                                    </option>
-
-                                    <option value="BANK">
-                                        BANK CRM
-                                    </option>
-
-                                    <option value="EMA">
-                                        Easy Merchant App
-                                    </option>
-
-                                    <option value="EMIL">
-                                        EMI Locker
-                                    </option>
+                                    <?php foreach ($projects as $project) { ?>
+                                        <option value="<?php echo htmlspecialchars($project['key']); ?>">
+                                            <?php echo htmlspecialchars($project['title']); ?>
+                                        </option>
+                                    <?php } ?>
 
                                 </select>
 
@@ -581,7 +619,6 @@ if (file_exists($envFile)) {
                         <label class="form-label">Account ID</label>
                         <input type="text" class="form-control" name="jira_account_id" value="<?php echo htmlspecialchars($env['JIRA_ACCOUNT_ID'] ?? ''); ?>" required>
                     </div>
-                    <div class="alert alert-info d-none" id="settingsStatus"></div>
                     <div class="text-end">
                         <button type="submit" class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
                     </div>
@@ -591,7 +628,54 @@ if (file_exists($envFile)) {
     </div>
 </div>
 
+<!-- Projects Modal -->
+<div class="modal fade" id="projectsModal" tabindex="-1" aria-labelledby="projectsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="projectsModalLabel"><i class="bi bi-folder2-open"></i> Manage Projects</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Add New Project</label>
+                    <form id="addProjectForm">
+                        <div class="row g-2">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="projectKeyInput" placeholder="KEY" maxlength="10" required>
+                        </div>
+                        <div class="col-md-7">
+                            <input type="text" class="form-control" id="projectTitleInput" placeholder="Project Title" required>
+                        </div>
+                        <div class="col-md-2 d-grid">
+                            <button type="button" class="btn btn-primary" id="addProjectBtn">
+                                Add
+                            </button>
+                        </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle projects-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">Key</th>
+                                <th>Title</th>
+                                <th style="width: 25%;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectsTableBody"></tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -769,13 +853,10 @@ document
 document.getElementById('settingsForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    const statusBox = document.getElementById('settingsStatus');
     const submitBtn = document.getElementById('saveSettingsBtn');
     
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
-    statusBox.classList.add('d-none');
-    
     try {
         const response = await fetch('save_settings.php', {
             method: 'POST',
@@ -783,24 +864,259 @@ document.getElementById('settingsForm').addEventListener('submit', async functio
         });
         
         const result = await response.text();
-        
-        statusBox.classList.remove('d-none', 'alert-danger');
-        statusBox.classList.add('alert-success');
-        statusBox.innerHTML = result;
-        
+
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: result || 'Settings saved successfully.',
+            timer: 1800,
+            showConfirmButton: false,
+            timerProgressBar: true
+        });
+
         setTimeout(() => {
             const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
-            modal.hide();
-            statusBox.classList.add('d-none');
-        }, 1500);
+            if (modal) {
+                modal.hide();
+            }
+        }, 600);
         
     } catch (error) {
-        statusBox.classList.remove('d-none', 'alert-success');
-        statusBox.classList.add('alert-danger');
-        statusBox.innerHTML = 'Error saving settings: ' + error.message;
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Error saving settings: ' + error.message,
+            timer: 2200,
+            showConfirmButton: false,
+            timerProgressBar: true
+        });
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = 'Save Settings';
+    }
+});
+
+const projectsModal = document.getElementById('projectsModal');
+const projectsTableBody = document.getElementById('projectsTableBody');
+const addProjectForm = document.getElementById('addProjectForm');
+const projectKeyInput = document.getElementById('projectKeyInput');
+const projectTitleInput = document.getElementById('projectTitleInput');
+const addProjectBtn = document.getElementById('addProjectBtn');
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function showProjectsAlert(message, type) {
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: type,
+        title: message,
+        timer: 1800,
+        showConfirmButton: false,
+        timerProgressBar: true
+    });
+}
+
+function renderProjects(projects) {
+    projectsTableBody.innerHTML = projects.map(project => `
+        <tr data-old-key="${escapeHtml(project.key)}">
+            <td>
+                <input type="text" class="form-control form-control-sm project-key" value="${escapeHtml(project.key)}" maxlength="10">
+            </td>
+            <td>
+                <input type="text" class="form-control form-control-sm project-title" value="${escapeHtml(project.title)}">
+            </td>
+            <td class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-primary save-project">Save</button>
+                <button type="button" class="btn btn-sm btn-danger delete-project">Delete</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function refreshProjectSelects(projects) {
+    const selects = document.querySelectorAll('select[name="project_key[]"]');
+    const keys = projects.map(project => project.key);
+
+    selects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Select';
+        select.appendChild(placeholder);
+
+        projects.forEach(project => {
+            const option = document.createElement('option');
+            option.value = project.key;
+            option.textContent = project.title;
+            select.appendChild(option);
+        });
+
+        if (keys.includes(currentValue)) {
+            select.value = currentValue;
+        } else {
+            select.value = '';
+        }
+
+        if (window.jQuery && $.fn.select2) {
+            $(select).trigger('change.select2');
+        }
+    });
+}
+
+async function loadProjects() {
+    const response = await fetch('manage_projects.php', {
+        method: 'POST',
+        body: new URLSearchParams({ action: 'list' })
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+        showProjectsAlert(result.message || 'Failed to load projects.', 'error');
+        return;
+    }
+
+    renderProjects(result.projects || []);
+    refreshProjectSelects(result.projects || []);
+}
+
+if (projectsModal) {
+    projectsModal.addEventListener('show.bs.modal', loadProjects);
+}
+
+if (addProjectBtn) {
+    addProjectBtn.addEventListener('click', async function() {
+        if (addProjectForm && !addProjectForm.checkValidity()) {
+            addProjectForm.reportValidity();
+            return;
+        }
+
+        const key = projectKeyInput.value.trim();
+        const title = projectTitleInput.value.trim();
+
+        const response = await fetch('manage_projects.php', {
+            method: 'POST',
+            body: new URLSearchParams({
+                action: 'create',
+                key: key,
+                title: title
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            showProjectsAlert(result.message || 'Failed to add project.', 'error');
+            return;
+        }
+
+        projectKeyInput.value = '';
+        projectTitleInput.value = '';
+        if (addProjectForm) {
+            addProjectForm.reset();
+        }
+        renderProjects(result.projects || []);
+        refreshProjectSelects(result.projects || []);
+        showProjectsAlert('Project added.', 'success');
+    });
+}
+
+projectsTableBody.addEventListener('click', async function(event) {
+    const row = event.target.closest('tr');
+    if (!row) {
+        return;
+    }
+
+    if (event.target.classList.contains('save-project')) {
+        const oldKey = row.getAttribute('data-old-key') || '';
+        const key = row.querySelector('.project-key').value.trim();
+        const title = row.querySelector('.project-title').value.trim();
+
+        const response = await fetch('manage_projects.php', {
+            method: 'POST',
+            body: new URLSearchParams({
+                action: 'update',
+                old_key: oldKey,
+                key: key,
+                title: title
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            showProjectsAlert(result.message || 'Failed to update project.', 'error');
+            return;
+        }
+
+        renderProjects(result.projects || []);
+        refreshProjectSelects(result.projects || []);
+
+        showProjectsAlert('Project updated successfully.', 'success');
+
+        setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(projectsModal);
+            if (modal) {
+                modal.hide();
+            }
+        }, 600);
+        return;
+    }
+
+    if (event.target.classList.contains('delete-project')) {
+        const key = row.getAttribute('data-old-key') || '';
+        const confirmation = await Swal.fire({
+            title: 'Delete project?'
+            , text: `Project ${key} will be removed from the list.`
+            , icon: 'warning'
+            , showCancelButton: true
+            , confirmButtonText: 'Delete'
+            , cancelButtonText: 'Cancel'
+            , confirmButtonColor: '#ef4444'
+        });
+
+        if (!confirmation.isConfirmed) {
+            return;
+        }
+
+        const response = await fetch('manage_projects.php', {
+            method: 'POST',
+            body: new URLSearchParams({
+                action: 'delete',
+                key: key
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            showProjectsAlert(result.message || 'Failed to delete project.', 'error');
+            return;
+        }
+
+        renderProjects(result.projects || []);
+        refreshProjectSelects(result.projects || []);
+
+        showProjectsAlert('Project removed successfully.', 'success');
+
+        setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(projectsModal);
+            if (modal) {
+                modal.hide();
+            }
+        }, 600);
     }
 });
 
