@@ -1,5 +1,10 @@
-<!-- index.php -->
-
+<?php
+$envFile = __DIR__ . '/.env';
+$env = [];
+if (file_exists($envFile)) {
+    $env = parse_ini_file($envFile);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -198,9 +203,14 @@
             <div class="header-title">
                 <i class="bi bi-jira"></i> Daily Jira Work Logger
             </div>
-            <a href="future.php" class="btn btn-light btn-sm fw-bold">
-                <i class="bi bi-calendar-plus"></i> Future Tasks Planner
-            </a>
+            <div>
+                <button type="button" class="btn btn-dark btn-sm fw-bold me-2" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                    <i class="bi bi-gear-fill"></i>
+                </button>
+                <a href="future.php" class="btn btn-light btn-sm fw-bold">
+                    <i class="bi bi-calendar-plus"></i> Future Tasks Planner
+                </a>
+            </div>
         </div>
 
         <div class="card-body">
@@ -421,6 +431,7 @@
                     <button
                         type="submit"
                         class="btn btn-primary"
+                        id="submitJiraFormBtn"
                     >
                         <i class="bi bi-cloud-arrow-up me-1"></i> Submit All Tasks
                     </button>
@@ -446,6 +457,43 @@
 
 </div>
 
+<!-- Settings Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="settingsModalLabel"><i class="bi bi-gear-fill"></i> Jira Credentials</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="settingsForm">
+                    <div class="mb-3">
+                        <label class="form-label">Base URL</label>
+                        <input type="url" class="form-control" name="jira_base_url" value="<?php echo htmlspecialchars($env['JIRA_BASE_URL'] ?? ''); ?>" required placeholder="https://your-domain.atlassian.net">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="jira_email" value="<?php echo htmlspecialchars($env['JIRA_EMAIL'] ?? ''); ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">API Token</label>
+                        <input type="text" class="form-control" name="jira_api_token" value="<?php echo htmlspecialchars($env['JIRA_API_TOKEN'] ?? ''); ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Account ID</label>
+                        <input type="text" class="form-control" name="jira_account_id" value="<?php echo htmlspecialchars($env['JIRA_ACCOUNT_ID'] ?? ''); ?>" required>
+                    </div>
+                    <div class="alert alert-info d-none" id="settingsStatus"></div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 
@@ -542,6 +590,13 @@ document
 
         const responseBox =
             document.getElementById('responseBox');
+            
+        const submitBtn =
+            document.getElementById('submitJiraFormBtn');
+            
+        const originalBtnHtml = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
 
         responseBox.innerHTML =
             'Processing...\n';
@@ -578,8 +633,49 @@ document
 
             responseBox.innerHTML =
                 error.message;
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHtml;
         }
     });
+
+document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const statusBox = document.getElementById('settingsStatus');
+    const submitBtn = document.getElementById('saveSettingsBtn');
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+    statusBox.classList.add('d-none');
+    
+    try {
+        const response = await fetch('save_settings.php', {
+            method: 'POST',
+            body: new FormData(this)
+        });
+        
+        const result = await response.text();
+        
+        statusBox.classList.remove('d-none', 'alert-danger');
+        statusBox.classList.add('alert-success');
+        statusBox.innerHTML = result;
+        
+        setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+            modal.hide();
+            statusBox.classList.add('d-none');
+        }, 1500);
+        
+    } catch (error) {
+        statusBox.classList.remove('d-none', 'alert-success');
+        statusBox.classList.add('alert-danger');
+        statusBox.innerHTML = 'Error saving settings: ' + error.message;
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Save Settings';
+    }
+});
 
 </script>
 
