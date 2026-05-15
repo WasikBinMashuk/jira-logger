@@ -16,6 +16,7 @@ if (file_exists($envFile)) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
 
     <style>
 
@@ -99,6 +100,51 @@ if (file_exists($envFile)) {
         .form-control:focus, .form-select:focus {
             border-color: #0d6efd;
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--single {
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            min-height: calc(1.5em + 20px + 2px);
+            padding: 10px 40px 10px 15px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            padding: 0;
+            line-height: 1.5;
+            color: #212529;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100%;
+            right: 12px;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 10px;
+            box-shadow: none;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+            outline: none;
         }
 
         .btn {
@@ -496,6 +542,8 @@ if (file_exists($envFile)) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 
@@ -504,6 +552,12 @@ flatpickr(".date-picker", {
     dateFormat: "Y-m-d",
     allowInput: true
 });
+
+if (window.jQuery && $.fn.select2) {
+    $('.form-select').select2({
+        width: '100%'
+    });
+}
 
 const container =
     document.getElementById('taskContainer');
@@ -531,6 +585,20 @@ document
             const defaultOption = Array.from(select.options).findIndex(opt => opt.hasAttribute('selected'));
             select.selectedIndex = defaultOption !== -1 ? defaultOption : 0;
         });
+
+        if (window.jQuery && $.fn.select2) {
+            clone.querySelectorAll('.select2-container').forEach(el => el.remove());
+            clone.querySelectorAll('select').forEach(select => {
+                select.classList.remove('select2-hidden-accessible');
+                select.removeAttribute('data-select2-id');
+                select.removeAttribute('tabindex');
+                select.removeAttribute('aria-hidden');
+                select.querySelectorAll('option').forEach(opt => opt.removeAttribute('data-select2-id'));
+                $(select).select2({
+                    width: '100%'
+                });
+            });
+        }
 
         container.appendChild(clone);
         updateTaskNumbers();
@@ -623,6 +691,13 @@ document
 
             // Clear the form if the request was successful
             this.reset();
+
+            if (window.jQuery && $.fn.select2) {
+                $('.form-select').each(function() {
+                    const defaultOption = Array.from(this.options).findIndex(opt => opt.hasAttribute('selected'));
+                    this.selectedIndex = defaultOption !== -1 ? defaultOption : 0;
+                }).trigger('change.select2');
+            }
             
             // Remove all dynamically added task rows except the first one
             const rows = document.querySelectorAll('.task-row');
