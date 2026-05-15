@@ -226,9 +226,10 @@ if (file_exists($envFile)) {
                         class="form-control date-picker"
                         name="global_date"
                         placeholder="YYYY-MM-DD"
-                        style="max-width: 250px; cursor: pointer; background-color: #fff;"
+                        style="max-width: 250px; cursor: pointer; background-color: #fff; caret-color: transparent;"
                         required
-                        readonly
+                        onkeydown="return false;"
+                        onpaste="return false;"
                     >
                 </div>
 

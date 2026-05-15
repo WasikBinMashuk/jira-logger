@@ -306,8 +306,9 @@ if (file_exists($envFile)) {
                                     name="start_date[]"
                                     placeholder="YYYY-MM-DD"
                                     required
-                                    readonly
-                                    style="cursor: pointer; background-color: #fff;"
+                                    onkeydown="return false;"
+                                    onpaste="return false;"
+                                    style="cursor: pointer; background-color: #fff; caret-color: transparent;"
                                 >
 
                             </div>
@@ -324,8 +325,9 @@ if (file_exists($envFile)) {
                                     name="due_date[]"
                                     placeholder="YYYY-MM-DD"
                                     required
-                                    readonly
-                                    style="cursor: pointer; background-color: #fff;"
+                                    onkeydown="return false;"
+                                    onpaste="return false;"
+                                    style="cursor: pointer; background-color: #fff; caret-color: transparent;"
                                 >
 
                             </div>
