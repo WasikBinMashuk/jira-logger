@@ -314,8 +314,11 @@ if (file_exists($projectsFile)) {
                 <button type="button" class="btn btn-dark btn-sm fw-bold me-2" data-bs-toggle="modal" data-bs-target="#settingsModal">
                     <i class="bi bi-gear-fill"></i>
                 </button>
-                <a href="index.php" class="btn btn-light btn-sm fw-bold">
+                <a href="index.php" class="btn btn-light btn-sm fw-bold me-2">
                     <i class="bi bi-clock-history"></i> Daily Logger
+                </a>
+                <a href="task_list.php" class="btn btn-light btn-sm fw-bold">
+                    <i class="bi bi-list-task"></i> Task List
                 </a>
             </div>
         </div>

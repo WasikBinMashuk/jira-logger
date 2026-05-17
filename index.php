@@ -344,6 +344,9 @@ if (file_exists($projectsFile)) {
                 <button type="button" class="btn btn-light btn-sm fw-bold me-2" data-bs-toggle="modal" data-bs-target="#projectsModal">
                     <i class="bi bi-folder2-open"></i> Projects
                 </button>
+                <a href="task_list.php" class="btn btn-light btn-sm fw-bold me-2">
+                    <i class="bi bi-list-task"></i> Task List
+                </a>
                 <a href="future.php" class="btn btn-light btn-sm fw-bold">
                     <i class="bi bi-calendar-plus"></i> Future Tasks Planner
                 </a>
