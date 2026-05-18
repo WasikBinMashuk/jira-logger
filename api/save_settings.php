@@ -1,6 +1,6 @@
 <?php
 
-$envFile = __DIR__ . '/.env';
+$envFile = __DIR__ . '/../.env';
 
 $baseUrl = $_POST['jira_base_url'] ?? '';
 $email = $_POST['jira_email'] ?? '';

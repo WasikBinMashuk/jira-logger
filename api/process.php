@@ -10,7 +10,7 @@ class JiraLogger
 
     public function __construct()
     {
-        $envFile = __DIR__ . '/.env';
+        $envFile = __DIR__ . '/../.env';
         if (file_exists($envFile)) {
             $env = parse_ini_file($envFile);
             $this->baseUrl = $env['JIRA_BASE_URL'] ?? '';

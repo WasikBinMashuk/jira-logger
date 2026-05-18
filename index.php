@@ -5,7 +5,7 @@ if (file_exists($envFile)) {
     $env = parse_ini_file($envFile);
 }
 
-$projectsFile = __DIR__ . '/projects.json';
+$projectsFile = __DIR__ . '/data/projects.json';
 $projects = [];
 if (file_exists($projectsFile)) {
     $projectsData = json_decode(file_get_contents($projectsFile), true);
@@ -807,7 +807,7 @@ document
         try {
 
             const response = await fetch(
-                'process.php',
+                'api/process.php',
                 {
                     method: 'POST',
                     body: formData
@@ -854,7 +854,7 @@ document.getElementById('settingsForm').addEventListener('submit', async functio
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
     try {
-        const response = await fetch('save_settings.php', {
+        const response = await fetch('api/save_settings.php', {
             method: 'POST',
             body: new FormData(this)
         });
@@ -972,7 +972,7 @@ function refreshProjectSelects(projects) {
 }
 
 async function loadProjects() {
-    const response = await fetch('manage_projects.php', {
+    const response = await fetch('api/manage_projects.php', {
         method: 'POST',
         body: new URLSearchParams({ action: 'list' })
     });
@@ -1002,7 +1002,7 @@ if (addProjectBtn) {
         const key = projectKeyInput.value.trim();
         const title = projectTitleInput.value.trim();
 
-        const response = await fetch('manage_projects.php', {
+        const response = await fetch('api/manage_projects.php', {
             method: 'POST',
             body: new URLSearchParams({
                 action: 'create',
@@ -1040,7 +1040,7 @@ projectsTableBody.addEventListener('click', async function(event) {
         const key = row.querySelector('.project-key').value.trim();
         const title = row.querySelector('.project-title').value.trim();
 
-        const response = await fetch('manage_projects.php', {
+        const response = await fetch('api/manage_projects.php', {
             method: 'POST',
             body: new URLSearchParams({
                 action: 'update',
@@ -1087,7 +1087,7 @@ projectsTableBody.addEventListener('click', async function(event) {
             return;
         }
 
-        const response = await fetch('manage_projects.php', {
+        const response = await fetch('api/manage_projects.php', {
             method: 'POST',
             body: new URLSearchParams({
                 action: 'delete',

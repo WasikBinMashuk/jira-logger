@@ -2,7 +2,7 @@
 
 header('Content-Type: application/json');
 
-$envFile = __DIR__ . '/.env';
+$envFile = __DIR__ . '/../.env';
 $env = [];
 if (file_exists($envFile)) {
     $env = parse_ini_file($envFile);

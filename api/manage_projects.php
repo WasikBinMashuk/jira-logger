@@ -2,7 +2,7 @@
 
 header('Content-Type: application/json');
 
-$projectsFile = __DIR__ . '/projects.json';
+$projectsFile = __DIR__ . '/../data/projects.json';
 
 function loadProjects($projectsFile)
 {

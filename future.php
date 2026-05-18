@@ -5,7 +5,7 @@ if (file_exists($envFile)) {
     $env = parse_ini_file($envFile);
 }
 
-$projectsFile = __DIR__ . '/projects.json';
+$projectsFile = __DIR__ . '/data/projects.json';
 $projects = [];
 if (file_exists($projectsFile)) {
     $projectsData = json_decode(file_get_contents($projectsFile), true);
@@ -703,7 +703,7 @@ document
         try {
 
             const response = await fetch(
-                'process_future.php',
+                'api/process_future.php',
                 {
                     method: 'POST',
                     body: formData
@@ -753,7 +753,7 @@ document.getElementById('settingsForm').addEventListener('submit', async functio
     statusBox.classList.add('d-none');
     
     try {
-        const response = await fetch('save_settings.php', {
+        const response = await fetch('api/save_settings.php', {
             method: 'POST',
             body: new FormData(this)
         });

@@ -5,7 +5,7 @@ if (file_exists($envFile)) {
     $env = parse_ini_file($envFile);
 }
 
-$projectsFile = __DIR__ . '/projects.json';
+$projectsFile = __DIR__ . '/data/projects.json';
 $projects = [];
 if (file_exists($projectsFile)) {
     $projectsData = json_decode(file_get_contents($projectsFile), true);
@@ -637,7 +637,7 @@ document.getElementById('filterForm').addEventListener('submit', async function 
     const formData = data;
 
     try {
-        const response = await fetch('fetch_tasks.php', { method: 'POST', body: formData });
+        const response = await fetch('api/fetch_tasks.php', { method: 'POST', body: formData });
         const result = await response.json();
 
         if (!result.success) {
@@ -733,7 +733,7 @@ document.getElementById('settingsForm').addEventListener('submit', async functio
     btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
 
     try {
-        const response = await fetch('save_settings.php', { method: 'POST', body: new FormData(this) });
+        const response = await fetch('api/save_settings.php', { method: 'POST', body: new FormData(this) });
         const result = await response.text();
 
         showAlert(result || 'Settings saved successfully.', 'success');
@@ -812,7 +812,7 @@ function refreshProjectFilter(projects) {
 }
 
 async function loadProjects() {
-    const response = await fetch('manage_projects.php', {
+    const response = await fetch('api/manage_projects.php', {
         method: 'POST',
         body: new URLSearchParams({ action: 'list' })
     });
@@ -831,7 +831,7 @@ if (addProjectBtn) {
         if (addProjectForm && !addProjectForm.checkValidity()) { addProjectForm.reportValidity(); return; }
         const key = projectKeyInput.value.trim();
         const title = projectTitleInput.value.trim();
-        const response = await fetch('manage_projects.php', {
+        const response = await fetch('api/manage_projects.php', {
             method: 'POST',
             body: new URLSearchParams({ action: 'create', key, title })
         });
@@ -854,7 +854,7 @@ projectsTableBody.addEventListener('click', async function (event) {
         const oldKey = row.getAttribute('data-old-key') || '';
         const key    = row.querySelector('.project-key').value.trim();
         const title  = row.querySelector('.project-title').value.trim();
-        const response = await fetch('manage_projects.php', {
+        const response = await fetch('api/manage_projects.php', {
             method: 'POST',
             body: new URLSearchParams({ action: 'update', old_key: oldKey, key, title })
         });
@@ -879,7 +879,7 @@ projectsTableBody.addEventListener('click', async function (event) {
             confirmButtonColor: '#ef4444'
         });
         if (!confirmation.isConfirmed) return;
-        const response = await fetch('manage_projects.php', {
+        const response = await fetch('api/manage_projects.php', {
             method: 'POST',
             body: new URLSearchParams({ action: 'delete', key })
         });
