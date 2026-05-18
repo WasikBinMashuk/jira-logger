@@ -645,7 +645,7 @@ document.getElementById('filterForm').addEventListener('submit', async function 
             return;
         }
 
-        renderResults(result.issues, result.total);
+        renderResults(result.issues, result.total, result.total_spent_secs || 0);
 
     } catch (err) {
         showAlert('Request failed: ' + err.message, 'error');
@@ -655,13 +655,22 @@ document.getElementById('filterForm').addEventListener('submit', async function 
     }
 });
 
-function renderResults(issues, total) {
+function formatSeconds(secs) {
+    if (!secs) return '0h';
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    return h > 0 && m > 0 ? h + 'h ' + m + 'm' : h > 0 ? h + 'h' : m + 'm';
+}
+
+function renderResults(issues, total, totalSpentSecs) {
     const container   = document.getElementById('resultsContainer');
     const countEl     = document.getElementById('resultsCount');
     const baseUrl     = '<?php echo htmlspecialchars(rtrim($env['JIRA_BASE_URL'] ?? '', '/')); ?>';
 
     const count = issues.length;
-    countEl.textContent = count + ' task' + (count !== 1 ? 's' : '') + ' found' + (total > count ? ' (' + total + ' total)' : '');
+    const taskLabel = count + ' task' + (count !== 1 ? 's' : '') + ' found' + (total > count ? ' (' + total + ' total)' : '');
+    const loggedLabel = 'Total Logged: <strong>' + formatSeconds(totalSpentSecs) + '</strong>';
+    countEl.innerHTML = taskLabel + ' &nbsp;|&nbsp; ' + loggedLabel;
 
     if (!issues.length) {
         container.innerHTML = '<div class="empty-state"><i class="bi bi-inbox"></i><div>No tasks found for the selected filters.</div></div>';

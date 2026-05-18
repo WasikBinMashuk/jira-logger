@@ -77,10 +77,13 @@ if ($httpCode !== 200) {
     exit;
 }
 
-$issues = [];
+$issues          = [];
+$totalSpentSecs  = 0;
+
 foreach ($data['issues'] ?? [] as $issue) {
-    $fields   = $issue['fields'];
-    $issues[] = [
+    $fields          = $issue['fields'];
+    $totalSpentSecs += (int) ($fields['timetracking']['timeSpentSeconds'] ?? 0);
+    $issues[]        = [
         'key'               => $issue['key'],
         'summary'           => $fields['summary'] ?? '',
         'project'           => $fields['project']['name'] ?? '',
@@ -94,7 +97,8 @@ foreach ($data['issues'] ?? [] as $issue) {
 }
 
 echo json_encode([
-    'success' => true,
-    'issues'  => $issues,
-    'total'   => $data['total'] ?? 0,
+    'success'          => true,
+    'issues'           => $issues,
+    'total'            => $data['total'] ?? 0,
+    'total_spent_secs' => $totalSpentSecs,
 ]);
