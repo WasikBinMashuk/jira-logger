@@ -608,10 +608,14 @@ flatpickr(".date-picker", {
 
 // ── Filter / Search ──────────────────────────────────────────────────────────
 
-document.getElementById('filterForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
+const filterForm = document.getElementById('filterForm');
 
-    const data = new FormData(this);
+async function fetchTasks() {
+    if (!filterForm) {
+        return;
+    }
+
+    const data = new FormData(filterForm);
     const startFrom = data.get('start_date_from');
     const startTo   = data.get('start_date_to');
     const dueFrom   = data.get('due_date_from');
@@ -631,13 +635,13 @@ document.getElementById('filterForm').addEventListener('submit', async function 
     }
 
     const btn = document.getElementById('searchBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-
-    const formData = data;
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+    }
 
     try {
-        const response = await fetch('api/fetch_tasks.php', { method: 'POST', body: formData });
+        const response = await fetch('api/fetch_tasks.php', { method: 'POST', body: data });
         const result = await response.json();
 
         if (!result.success) {
@@ -650,10 +654,19 @@ document.getElementById('filterForm').addEventListener('submit', async function 
     } catch (err) {
         showAlert('Request failed: ' + err.message, 'error');
     } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-search"></i>';
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search"></i>';
+        }
     }
-});
+}
+
+if (filterForm) {
+    filterForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetchTasks();
+    });
+}
 
 function formatSeconds(secs) {
     if (!secs) return '0h';
@@ -684,7 +697,7 @@ function renderResults(issues, total, totalSpentSecs) {
 
         const statusClass = getStatusClass(issue.status);
 
-        return `<tr>
+        return `<tr data-issue-key="${escapeHtml(issue.key)}">
             <td>${keyLink}</td>
             <td>${escapeHtml(issue.summary)}</td>
             <td>${escapeHtml(issue.project)}</td>
@@ -694,6 +707,11 @@ function renderResults(issues, total, totalSpentSecs) {
             <td>${escapeHtml(issue.original_estimate)}</td>
             <td>${escapeHtml(issue.time_spent)}</td>
             <td>${escapeHtml(issue.created)}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-danger delete-task" data-issue-key="${escapeHtml(issue.key)}">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
         </tr>`;
     }).join('');
 
@@ -710,6 +728,7 @@ function renderResults(issues, total, totalSpentSecs) {
                     <th>Estimate</th>
                     <th>Logged</th>
                     <th>Created</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>${rows}</tbody>
@@ -721,6 +740,57 @@ function getStatusClass(status) {
     if (s.includes('done') || s.includes('closed') || s.includes('resolved')) return 'status-done';
     if (s.includes('progress') || s.includes('review') || s.includes('active')) return 'status-progress';
     return 'status-todo';
+}
+
+const resultsContainer = document.getElementById('resultsContainer');
+if (resultsContainer) {
+    resultsContainer.addEventListener('click', async function (event) {
+        const deleteBtn = event.target.closest('.delete-task');
+        if (!deleteBtn) {
+            return;
+        }
+
+        const issueKey = deleteBtn.getAttribute('data-issue-key');
+        if (!issueKey) {
+            return;
+        }
+
+        const confirmation = await Swal.fire({
+            title: 'Delete task?',
+            text: `This will delete ${issueKey} from Jira.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#ef4444'
+        });
+
+        if (!confirmation.isConfirmed) {
+            return;
+        }
+
+        deleteBtn.disabled = true;
+
+        try {
+            const response = await fetch('api/delete_task.php', {
+                method: 'POST',
+                body: new URLSearchParams({ key: issueKey })
+            });
+            const result = await response.json();
+
+            if (!result.success) {
+                showAlert(result.message || 'Failed to delete task.', 'error');
+                deleteBtn.disabled = false;
+                return;
+            }
+
+            showAlert(`${issueKey} deleted.`, 'success');
+            await fetchTasks();
+        } catch (err) {
+            showAlert('Delete failed: ' + err.message, 'error');
+            deleteBtn.disabled = false;
+        }
+    });
 }
 
 // ── Settings ─────────────────────────────────────────────────────────────────
