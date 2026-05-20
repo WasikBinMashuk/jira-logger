@@ -97,6 +97,224 @@ class JiraLogger
         ];
     }
 
+    private function htmlToAdf($html)
+    {
+        $html = trim((string) $html);
+        if ($html === '') {
+            return null;
+        }
+
+        $doc = new DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+        $doc->loadHTML(
+            '<?xml encoding="utf-8" ?><div>' . $html . '</div>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        $wrapper = $doc->getElementsByTagName('div')->item(0);
+        if (!$wrapper) {
+            return null;
+        }
+
+        $content = $this->convertBlockNodes($wrapper->childNodes);
+        if (empty($content)) {
+            $content = [
+                [
+                    'type' => 'paragraph'
+                ]
+            ];
+        }
+
+        return [
+            'type' => 'doc',
+            'version' => 1,
+            'content' => $content
+        ];
+    }
+
+    private function convertBlockNodes($nodeList)
+    {
+        $blocks = [];
+
+        foreach ($nodeList as $node) {
+            $blocks = array_merge(
+                $blocks,
+                $this->convertBlockNode($node)
+            );
+        }
+
+        return $blocks;
+    }
+
+    private function convertBlockNode($node)
+    {
+        if ($node->nodeType === XML_TEXT_NODE) {
+            $text = preg_replace('/\s+/', ' ', $node->nodeValue ?? '');
+            if (trim($text) === '') {
+                return [];
+            }
+
+            return [
+                $this->buildParagraph([
+                    [
+                        'type' => 'text',
+                        'text' => $text
+                    ]
+                ])
+            ];
+        }
+
+        if ($node->nodeType !== XML_ELEMENT_NODE) {
+            return [];
+        }
+
+        $tag = strtolower($node->nodeName);
+
+        if ($tag === 'p') {
+            return [
+                $this->buildParagraph(
+                    $this->convertInlineNodes($node->childNodes)
+                )
+            ];
+        }
+
+        if ($tag === 'br') {
+            return [
+                [
+                    'type' => 'paragraph'
+                ]
+            ];
+        }
+
+        if ($tag === 'ul' || $tag === 'ol') {
+            $listItems = [];
+            foreach ($node->childNodes as $child) {
+                if (
+                    $child->nodeType === XML_ELEMENT_NODE
+                    && strtolower($child->nodeName) === 'li'
+                ) {
+                    $itemContent = $this->convertBlockNodes($child->childNodes);
+                    if (empty($itemContent)) {
+                        $itemContent = [
+                            [
+                                'type' => 'paragraph'
+                            ]
+                        ];
+                    }
+
+                    $listItems[] = [
+                        'type' => 'listItem',
+                        'content' => $itemContent
+                    ];
+                }
+            }
+
+            if (empty($listItems)) {
+                return [];
+            }
+
+            return [
+                [
+                    'type' => $tag === 'ul' ? 'bulletList' : 'orderedList',
+                    'content' => $listItems
+                ]
+            ];
+        }
+
+        if ($tag === 'div') {
+            return $this->convertBlockNodes($node->childNodes);
+        }
+
+        return [
+            $this->buildParagraph(
+                $this->convertInlineNodes($node->childNodes)
+            )
+        ];
+    }
+
+    private function convertInlineNodes($nodeList, $marks = [])
+    {
+        $nodes = [];
+
+        foreach ($nodeList as $node) {
+            if ($node->nodeType === XML_TEXT_NODE) {
+                $text = preg_replace('/\s+/', ' ', $node->nodeValue ?? '');
+                if (trim($text) === '') {
+                    continue;
+                }
+
+                $textNode = [
+                    'type' => 'text',
+                    'text' => $text
+                ];
+
+                if (!empty($marks)) {
+                    $textNode['marks'] = $marks;
+                }
+
+                $nodes[] = $textNode;
+                continue;
+            }
+
+            if ($node->nodeType !== XML_ELEMENT_NODE) {
+                continue;
+            }
+
+            $tag = strtolower($node->nodeName);
+
+            if ($tag === 'br') {
+                $nodes[] = [
+                    'type' => 'hardBreak'
+                ];
+                continue;
+            }
+
+            if ($tag === 'strong' || $tag === 'b') {
+                $nodes = array_merge(
+                    $nodes,
+                    $this->convertInlineNodes(
+                        $node->childNodes,
+                        array_merge($marks, [['type' => 'strong']])
+                    )
+                );
+                continue;
+            }
+
+            if ($tag === 'em' || $tag === 'i') {
+                $nodes = array_merge(
+                    $nodes,
+                    $this->convertInlineNodes(
+                        $node->childNodes,
+                        array_merge($marks, [['type' => 'em']])
+                    )
+                );
+                continue;
+            }
+
+            $nodes = array_merge(
+                $nodes,
+                $this->convertInlineNodes($node->childNodes, $marks)
+            );
+        }
+
+        return $nodes;
+    }
+
+    private function buildParagraph($inlineContent)
+    {
+        $paragraph = [
+            'type' => 'paragraph'
+        ];
+
+        if (!empty($inlineContent)) {
+            $paragraph['content'] = $inlineContent;
+        }
+
+        return $paragraph;
+    }
+
     public function createIssue(
         $projectKey,
         $title,
@@ -259,15 +477,25 @@ class JiraLogger
 
     public function logWork(
         $issueKey,
-        $time
+        $time,
+        $workDescription
     ) {
+
+        $payload = [
+            'timeSpent' => $time
+        ];
+
+        if (trim($workDescription) !== '') {
+            $adf = $this->htmlToAdf($workDescription);
+            if ($adf) {
+                $payload['comment'] = $adf;
+            }
+        }
 
         return $this->request(
             'POST',
             "/rest/api/3/issue/{$issueKey}/worklog",
-            [
-                'timeSpent' => $time
-            ]
+            $payload
         );
     }
 }
@@ -295,6 +523,9 @@ $dueDates =
 
 $taskSizes =
     $_POST['task_size'];
+
+$workDescriptions =
+    $_POST['work_description'] ?? [];
 
 foreach (
     $titles as $index => $title
@@ -409,9 +640,13 @@ foreach (
     echo
     "Estimate Updated\n";
 
+    $workDescription =
+        $workDescriptions[$index] ?? '';
+
     $jira->logWork(
         $issueKey,
-        $times[$index]
+        $times[$index],
+        $workDescription
     );
 
     echo

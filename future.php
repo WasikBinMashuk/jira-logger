@@ -402,7 +402,7 @@ if (file_exists($projectsFile)) {
                                     type="text"
                                     class="form-control"
                                     name="time[]"
-                                    placeholder="2h"
+                                    placeholder="e.g: 1h or 20m"
                                     required
                                 >
 

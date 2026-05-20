@@ -417,14 +417,14 @@ if (file_exists($projectsFile)) {
                                     type="text"
                                     class="form-control"
                                     name="time[]"
-                                    placeholder="2h"
+                                    placeholder="e.g: 1h or 20m"
                                     required
                                 >
 
                             </div>
 
                             <!-- SECOND ROW (12 Cols) -->
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-2 mb-3">
 
                                 <label class="form-label">
                                     Start Date
@@ -443,7 +443,7 @@ if (file_exists($projectsFile)) {
 
                             </div>
 
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-2 mb-3">
 
                                 <label class="form-label">
                                     Due Date
@@ -462,7 +462,7 @@ if (file_exists($projectsFile)) {
 
                             </div>
 
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
 
                                 <label class="form-label">
                                     Task Size
@@ -502,8 +502,7 @@ if (file_exists($projectsFile)) {
 
                             </div>
 
-                            <!-- THIRD ROW (12 Cols) -->
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-5 mb-3">
 
                                 <label class="form-label">
                                     Task Category
@@ -533,6 +532,21 @@ if (file_exists($projectsFile)) {
                                     <option value="10671">PMO - Scrum Meeting</option>
                                     <option value="10672">PMO - BRD/SRS/Project Schedule</option>
                                 </select>
+
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+
+                                <label class="form-label">
+                                    Work Description
+                                </label>
+
+                                <textarea
+                                    class="form-control work-description"
+                                    name="work_description[]"
+                                    rows="2"
+                                    placeholder="Add a short work log description"
+                                ></textarea>
 
                             </div>
 
@@ -675,6 +689,7 @@ if (file_exists($projectsFile)) {
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
 <script>
 
 // Initialize flatpickr on page load
@@ -692,15 +707,58 @@ if (window.jQuery && $.fn.select2) {
 const container =
     document.getElementById('taskContainer');
 
+const taskTemplate =
+    document.querySelector('.task-row').cloneNode(true);
+
+function ensureEditorId(textarea) {
+    if (!textarea.id) {
+        textarea.id = `work_description_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    }
+}
+
+function initWorkDescriptionEditor(textarea) {
+    if (!window.tinymce || !textarea) {
+        return;
+    }
+
+    ensureEditorId(textarea);
+
+    tinymce.init({
+        target: textarea,
+        menubar: false,
+        branding: false,
+        statusbar: false,
+        toolbar: 'bold italic | bullist numlist | removeformat',
+        plugins: 'lists',
+        height: 160
+    });
+}
+
+function removeWorkDescriptionEditor(textarea) {
+    if (!window.tinymce || !textarea || !textarea.id) {
+        return;
+    }
+
+    const editor = tinymce.get(textarea.id);
+    if (editor) {
+        editor.remove();
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('textarea.work-description').forEach(initWorkDescriptionEditor);
+    });
+} else {
+    document.querySelectorAll('textarea.work-description').forEach(initWorkDescriptionEditor);
+}
+
 document
     .getElementById('addMore')
     .addEventListener('click', function() {
 
-        const firstRow =
-            document.querySelector('.task-row');
-
         const clone =
-            firstRow.cloneNode(true);
+            taskTemplate.cloneNode(true);
 
         clone.querySelectorAll('input').forEach(input => {
             input.value = '';
@@ -709,6 +767,10 @@ document
                 input.classList.remove('flatpickr-input', 'active');
                 input.removeAttribute('readonly');
             }
+        });
+
+        clone.querySelectorAll('textarea').forEach(textarea => {
+            textarea.value = '';
         });
 
         clone.querySelectorAll('select').forEach(select => {
@@ -738,6 +800,8 @@ document
             dateFormat: "Y-m-d",
             allowInput: true
         });
+
+        clone.querySelectorAll('textarea.work-description').forEach(initWorkDescriptionEditor);
     });
 
 function updateTaskNumbers() {
@@ -760,7 +824,9 @@ document.addEventListener('click', function(e) {
             document.querySelectorAll('.task-row');
 
         if (rows.length > 1) {
-            removeBtn.closest('.task-row').remove();
+            const row = removeBtn.closest('.task-row');
+            row.querySelectorAll('textarea.work-description').forEach(removeWorkDescriptionEditor);
+            row.remove();
             updateTaskNumbers();
         }
     }
@@ -801,10 +867,13 @@ document
         responseBox.innerHTML =
             'Processing...\n';
 
-        const formData =
-            new FormData(this);
-
         try {
+            if (window.tinymce) {
+                tinymce.triggerSave();
+            }
+
+            const formData =
+                new FormData(this);
 
             const response = await fetch(
                 'api/process.php',
@@ -832,9 +901,14 @@ document
             // Remove all dynamically added task rows except the first one
             const rows = document.querySelectorAll('.task-row');
             for (let i = 1; i < rows.length; i++) {
+                rows[i].querySelectorAll('textarea.work-description').forEach(removeWorkDescriptionEditor);
                 rows[i].remove();
             }
             updateTaskNumbers();
+
+            if (window.tinymce && Array.isArray(tinymce.editors)) {
+                tinymce.editors.forEach(editor => editor.setContent(''));
+            }
 
         } catch (error) {
 
