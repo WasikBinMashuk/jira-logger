@@ -436,6 +436,7 @@ if (file_exists($projectsFile)) {
                                     name="start_date[]"
                                     placeholder="YYYY-MM-DD"
                                     required
+                                    autocomplete="off"
                                     onkeydown="return false;"
                                     onpaste="return false;"
                                     style="cursor: pointer; background-color: #fff; caret-color: transparent;"
@@ -455,6 +456,7 @@ if (file_exists($projectsFile)) {
                                     name="due_date[]"
                                     placeholder="YYYY-MM-DD"
                                     required
+                                    autocomplete="off"
                                     onkeydown="return false;"
                                     onpaste="return false;"
                                     style="cursor: pointer; background-color: #fff; caret-color: transparent;"
@@ -695,7 +697,8 @@ if (file_exists($projectsFile)) {
 // Initialize flatpickr on page load
 flatpickr(".date-picker", {
     dateFormat: "Y-m-d",
-    allowInput: true
+    allowInput: true,
+    onReady(_, __, fp) { fp.input.setAttribute("autocomplete", "off"); }
 });
 
 if (window.jQuery && $.fn.select2) {
@@ -798,7 +801,8 @@ document
         // Re-initialize flatpickr on the new row only
         flatpickr(clone.querySelectorAll(".date-picker"), {
             dateFormat: "Y-m-d",
-            allowInput: true
+            allowInput: true,
+            onReady(_, __, fp) { fp.input.setAttribute("autocomplete", "off"); }
         });
 
         clone.querySelectorAll('textarea.work-description').forEach(initWorkDescriptionEditor);

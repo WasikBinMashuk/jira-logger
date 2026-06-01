@@ -338,6 +338,7 @@ if (file_exists($projectsFile)) {
                         placeholder="YYYY-MM-DD"
                         style="max-width: 250px; cursor: pointer; background-color: #fff; caret-color: transparent;"
                         required
+                        autocomplete="off"
                         onkeydown="return false;"
                         onpaste="return false;"
                     >
@@ -580,7 +581,8 @@ if (file_exists($projectsFile)) {
 // Initialize flatpickr on page load
 flatpickr(".date-picker", {
     dateFormat: "Y-m-d",
-    allowInput: true
+    allowInput: true,
+    onReady(_, __, fp) { fp.input.setAttribute("autocomplete", "off"); }
 });
 
 if (window.jQuery && $.fn.select2) {
@@ -636,7 +638,8 @@ document
         // Re-initialize flatpickr on the new row only
         flatpickr(clone.querySelectorAll(".date-picker"), {
             dateFormat: "Y-m-d",
-            allowInput: true
+            allowInput: true,
+            onReady(_, __, fp) { fp.input.setAttribute("autocomplete", "off"); }
         });
     });
 

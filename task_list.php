@@ -433,6 +433,7 @@ if (file_exists($projectsFile)) {
                                 class="form-control date-picker"
                                 name="start_date_from"
                                 placeholder="YYYY-MM-DD"
+                                autocomplete="off"
                                 onkeydown="return false;"
                                 onpaste="return false;"
                                 style="cursor: pointer; caret-color: transparent;"
@@ -446,6 +447,7 @@ if (file_exists($projectsFile)) {
                                 class="form-control date-picker"
                                 name="start_date_to"
                                 placeholder="YYYY-MM-DD"
+                                autocomplete="off"
                                 onkeydown="return false;"
                                 onpaste="return false;"
                                 style="cursor: pointer; caret-color: transparent;"
@@ -459,6 +461,7 @@ if (file_exists($projectsFile)) {
                                 class="form-control date-picker"
                                 name="due_date_from"
                                 placeholder="YYYY-MM-DD"
+                                autocomplete="off"
                                 onkeydown="return false;"
                                 onpaste="return false;"
                                 style="cursor: pointer; caret-color: transparent;"
@@ -472,6 +475,7 @@ if (file_exists($projectsFile)) {
                                 class="form-control date-picker"
                                 name="due_date_to"
                                 placeholder="YYYY-MM-DD"
+                                autocomplete="off"
                                 onkeydown="return false;"
                                 onpaste="return false;"
                                 style="cursor: pointer; caret-color: transparent;"
@@ -603,7 +607,8 @@ if (window.jQuery && $.fn.select2) {
 
 flatpickr(".date-picker", {
     dateFormat: "Y-m-d",
-    allowInput: true
+    allowInput: true,
+    onReady(_, __, fp) { fp.input.setAttribute("autocomplete", "off"); }
 });
 
 // ── Filter / Search ──────────────────────────────────────────────────────────
