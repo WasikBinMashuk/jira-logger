@@ -478,7 +478,8 @@ class JiraLogger
     public function logWork(
         $issueKey,
         $time,
-        $workDescription
+        $workDescription,
+        $startDate = null
     ) {
 
         $payload = [
@@ -489,6 +490,19 @@ class JiraLogger
             $adf = $this->htmlToAdf($workDescription);
             if ($adf) {
                 $payload['comment'] = $adf;
+            }
+        }
+
+        if (!empty($startDate)) {
+            $started = DateTime::createFromFormat('Y-m-d', $startDate);
+            if ($started) {
+                $now = new DateTime();
+                $started->setTime(
+                    (int) $now->format('H'),
+                    (int) $now->format('i'),
+                    (int) $now->format('s')
+                );
+                $payload['started'] = $started->format('Y-m-d\TH:i:s.vO');
             }
         }
 
@@ -646,7 +660,8 @@ foreach (
     $jira->logWork(
         $issueKey,
         $times[$index],
-        $workDescription
+        $workDescription,
+        $startDates[$index]
     );
 
     echo
