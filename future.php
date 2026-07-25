@@ -410,7 +410,7 @@ if (file_exists($projectsFile)) {
                             </div>
 
                             <!-- SECOND ROW (12 Cols) -->
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
 
                                 <label class="form-label">
                                     Task Category
@@ -477,6 +477,25 @@ if (file_exists($projectsFile)) {
 
                                     <option value="10668">
                                         Extra Large (XL)
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    Team
+                                </label>
+
+                                <select
+                                    class="form-select team-select"
+                                    name="team[]"
+                                >
+
+                                    <option value="">
+                                        Select
                                     </option>
 
                                 </select>
@@ -593,6 +612,29 @@ if (window.jQuery && $.fn.select2) {
 
 const container =
     document.getElementById('taskContainer');
+
+function loadTeams() {
+    fetch('api/fetch_teams.php')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success || !Array.isArray(data.teams)) {
+                return;
+            }
+
+            document.querySelectorAll('.team-select').forEach(select => {
+                data.teams.forEach(team => {
+                    const isDefault = team.name.trim().toLowerCase() === 'findev';
+                    select.add(new Option(team.name, team.id, isDefault, isDefault));
+                });
+                if (window.jQuery && $.fn.select2) {
+                    $(select).trigger('change.select2');
+                }
+            });
+        })
+        .catch(() => {});
+}
+
+loadTeams();
 
 document
     .getElementById('addMore')

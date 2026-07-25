@@ -537,6 +537,25 @@ if (file_exists($projectsFile)) {
 
                             </div>
 
+                            <div class="col-md-3 mb-3">
+
+                                <label class="form-label">
+                                    Team
+                                </label>
+
+                                <select
+                                    class="form-select team-select"
+                                    name="team[]"
+                                >
+
+                                    <option value="">
+                                        Select
+                                    </option>
+
+                                </select>
+
+                            </div>
+
                             <div class="col-md-12 mb-3">
 
                                 <label class="form-label">
@@ -712,6 +731,38 @@ const container =
 
 const taskTemplate =
     document.querySelector('.task-row').cloneNode(true);
+
+function populateTeamOptions(select, teams) {
+    if (!select) {
+        return;
+    }
+    teams.forEach(team => {
+        const isDefault = team.name.trim().toLowerCase() === 'findev';
+        select.add(new Option(team.name, team.id, isDefault, isDefault));
+    });
+}
+
+function loadTeams() {
+    fetch('api/fetch_teams.php')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success || !Array.isArray(data.teams)) {
+                return;
+            }
+
+            populateTeamOptions(taskTemplate.querySelector('.team-select'), data.teams);
+
+            document.querySelectorAll('.team-select').forEach(select => {
+                populateTeamOptions(select, data.teams);
+                if (window.jQuery && $.fn.select2) {
+                    $(select).trigger('change.select2');
+                }
+            });
+        })
+        .catch(() => {});
+}
+
+loadTeams();
 
 function ensureEditorId(textarea) {
     if (!textarea.id) {

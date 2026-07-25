@@ -103,7 +103,8 @@ class JiraLogger
         $taskCategory,
         $startDate,
         $dueDate,
-        $taskSize
+        $taskSize,
+        $teamId = ''
     ) {
 
         $payload = [
@@ -153,6 +154,10 @@ class JiraLogger
                 ]
             ]
         ];
+
+        if (!empty($teamId)) {
+            $payload['fields']['customfield_10500'] = $teamId; // Team
+        }
 
         $response =
             $this->request(
@@ -293,6 +298,9 @@ $projects =
 $taskSizes =
     $_POST['task_size'];
 
+$teams =
+    $_POST['team'] ?? [];
+
 foreach (
     $titles as $index => $title
 ) {
@@ -310,7 +318,8 @@ foreach (
             $taskCategories[$index],
             $globalDate,
             $globalDate,
-            $taskSizes[$index]
+            $taskSizes[$index],
+            $teams[$index] ?? ''
         );
 
     if (!$issueKey) {
