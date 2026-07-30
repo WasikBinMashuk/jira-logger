@@ -84,6 +84,41 @@ if (file_exists($projectsFile)) {
             gap: 12px;
         }
 
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            row-gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 22px 20px;
+            }
+
+            .header-title {
+                font-size: 19px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-title {
+                font-size: 17px;
+            }
+
+            .header-actions .btn {
+                font-size: 0.82rem;
+                padding: 8px 12px;
+            }
+        }
+
         .card-body {
             padding: 40px 30px;
         }
@@ -212,9 +247,21 @@ if (file_exists($projectsFile)) {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            row-gap: 8px;
             padding: 16px 24px;
             background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
             border-bottom: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 480px) {
+            .results-header {
+                align-items: flex-start;
+            }
+
+            .results-count {
+                width: 100%;
+            }
         }
 
         .results-title {
@@ -481,6 +528,17 @@ if (file_exists($projectsFile)) {
             color: #64748b;
         }
 
+        [data-theme="dark"] .form-control:-webkit-autofill,
+        [data-theme="dark"] .form-control:-webkit-autofill:hover,
+        [data-theme="dark"] .form-control:-webkit-autofill:focus,
+        [data-theme="dark"] .form-control:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #1a2332 inset !important;
+            box-shadow: 0 0 0 1000px #1a2332 inset !important;
+            -webkit-text-fill-color: var(--ink) !important;
+            caret-color: var(--ink);
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
         [data-theme="dark"] .select2-container--default .select2-selection--single {
             background-color: #1a2332;
             border-color: rgba(255, 255, 255, 0.1);
@@ -511,9 +569,36 @@ if (file_exists($projectsFile)) {
             color: var(--ink);
         }
 
+        [data-theme="dark"] .select2-results__option--selected {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--ink);
+        }
+
         [data-theme="dark"] .select2-container--default .select2-results__option--highlighted[aria-selected] {
             background-color: var(--accent);
             color: #ffffff;
+        }
+
+        [data-theme="dark"] .select2-results__options {
+            scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+            scrollbar-width: thin;
+        }
+
+        [data-theme="dark"] .select2-results__options::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        [data-theme="dark"] .select2-results__options::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        [data-theme="dark"] .select2-results__options::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+        }
+
+        [data-theme="dark"] .select2-results__options::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, 0.4);
         }
 
         [data-theme="dark"] .btn-light {
@@ -690,7 +775,7 @@ if (file_exists($projectsFile)) {
             <div class="header-title">
                 <i class="bi bi-list-task"></i> Task List
             </div>
-            <div>
+            <div class="header-actions">
                 <button type="button" class="btn btn-dark btn-sm fw-bold me-2 theme-toggle" onclick="toggleTheme()" title="Switch to dark mode">
                     <i class="bi bi-moon-stars-fill"></i>
                 </button>
@@ -910,6 +995,7 @@ if (window.jQuery && $.fn.select2) {
 flatpickr(".date-picker", {
     dateFormat: "Y-m-d",
     allowInput: true,
+    disableMobile: true,
     onReady(_, __, fp) { fp.input.setAttribute("autocomplete", "off"); }
 });
 
