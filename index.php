@@ -23,6 +23,8 @@ if (file_exists($projectsFile)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jira Bulk Logger</title>
 
+    <script src="theme.js"></script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -324,6 +326,280 @@ if (file_exists($projectsFile)) {
             font-weight: 700;
         }
 
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.26);
+        }
+
+        /* Dark mode */
+
+        [data-theme="dark"] {
+            --bg-1: #0b1220;
+            --bg-2: #0a0f1a;
+            --card: #111827;
+            --ink: #e2e8f0;
+            --muted: #94a3b8;
+            --shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+        }
+
+        [data-theme="dark"] body {
+            background:
+                radial-gradient(1200px circle at 10% -10%, rgba(14, 165, 233, 0.12) 0%, transparent 55%),
+                radial-gradient(1000px circle at 110% 10%, rgba(20, 184, 166, 0.12) 0%, transparent 55%),
+                linear-gradient(180deg, var(--bg-1), var(--bg-2));
+        }
+
+        [data-theme="dark"] .main-card {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: rgba(17, 24, 39, 0.92);
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .task-row {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, #16202f 0%, #131c29 100%);
+        }
+
+        [data-theme="dark"] .task-row:hover {
+            border-color: rgba(255, 255, 255, 0.16);
+            background: #16202f;
+        }
+
+        [data-theme="dark"] .task-number {
+            color: #e2e8f0;
+            border-color: rgba(14, 165, 233, 0.35);
+        }
+
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select {
+            background: #1a2332;
+            border-color: rgba(255, 255, 255, 0.1);
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .form-control:focus,
+        [data-theme="dark"] .form-select:focus {
+            background: #1e293b;
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .form-control::placeholder {
+            color: #64748b;
+        }
+
+        [data-theme="dark"] .select2-container--default .select2-selection--single {
+            background-color: #1a2332;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .select2-container--default.select2-container--focus .select2-selection--single,
+        [data-theme="dark"] .select2-container--default.select2-container--open .select2-selection--single {
+            background: #1e293b;
+        }
+
+        [data-theme="dark"] .select2-container--default .select2-search--dropdown .select2-search__field {
+            background: #1a2332;
+            border-color: rgba(255, 255, 255, 0.1);
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .select2-dropdown {
+            background: #16202f;
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .select2-results__option {
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: var(--accent);
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .projects-table tbody tr::after {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        [data-theme="dark"] .btn-light {
+            background: #1a2332;
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .btn-light:hover {
+            background: #222e42;
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .btn-dark {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        [data-theme="dark"] .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+        }
+
+        [data-theme="dark"] .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.28);
+            color: #fecaca;
+        }
+
+        [data-theme="dark"] .btn-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+
+        [data-theme="dark"] .btn-success:hover {
+            background: rgba(16, 185, 129, 0.26);
+            color: #a7f3d0;
+        }
+
+        [data-theme="dark"] .remove-btn {
+            border-color: var(--card);
+        }
+
+        [data-theme="dark"] .response-box-title {
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .modal-content {
+            background: var(--card);
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .modal-header,
+        [data-theme="dark"] .modal-footer {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        [data-theme="dark"] .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        [data-theme="dark"] .swal2-popup {
+            background: #16202f;
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .swal2-title,
+        [data-theme="dark"] .swal2-html-container {
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .swal2-popup .swal2-cancel {
+            background: #334155;
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .swal2-popup.swal2-toast {
+            background: #16202f;
+            color: var(--ink);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        [data-theme="dark"] .table {
+            color: var(--ink);
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--ink);
+        }
+
+        [data-theme="dark"] .flatpickr-calendar {
+            background: #16202f;
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
+        }
+
+        [data-theme="dark"] .flatpickr-calendar.arrowTop:before {
+            border-bottom-color: rgba(255, 255, 255, 0.12);
+        }
+
+        [data-theme="dark"] .flatpickr-calendar.arrowTop:after {
+            border-bottom-color: #16202f;
+        }
+
+        [data-theme="dark"] .flatpickr-calendar.arrowBottom:before {
+            border-top-color: rgba(255, 255, 255, 0.12);
+        }
+
+        [data-theme="dark"] .flatpickr-calendar.arrowBottom:after {
+            border-top-color: #16202f;
+        }
+
+        [data-theme="dark"] .flatpickr-months .flatpickr-month,
+        [data-theme="dark"] .flatpickr-weekdays,
+        [data-theme="dark"] span.flatpickr-weekday,
+        [data-theme="dark"] .flatpickr-days {
+            background: #16202f;
+            color: var(--ink);
+            fill: var(--ink);
+        }
+
+        [data-theme="dark"] span.flatpickr-weekday {
+            color: var(--muted);
+        }
+
+        [data-theme="dark"] .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: #16202f;
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .flatpickr-current-month input.cur-year {
+            background: transparent;
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .flatpickr-prev-month svg,
+        [data-theme="dark"] .flatpickr-next-month svg {
+            fill: var(--ink);
+        }
+
+        [data-theme="dark"] .flatpickr-prev-month:hover svg,
+        [data-theme="dark"] .flatpickr-next-month:hover svg {
+            fill: var(--accent);
+        }
+
+        [data-theme="dark"] .flatpickr-day {
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .flatpickr-day.today {
+            border-color: var(--accent);
+        }
+
+        [data-theme="dark"] .flatpickr-day:hover,
+        [data-theme="dark"] .flatpickr-day:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .flatpickr-day.selected,
+        [data-theme="dark"] .flatpickr-day.selected:hover,
+        [data-theme="dark"] .flatpickr-day.selected:focus {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .flatpickr-day.prevMonthDay,
+        [data-theme="dark"] .flatpickr-day.nextMonthDay,
+        [data-theme="dark"] .flatpickr-day.flatpickr-disabled,
+        [data-theme="dark"] .flatpickr-day.flatpickr-disabled:hover {
+            color: #475569;
+        }
+
     </style>
 
 </head>
@@ -338,6 +614,9 @@ if (file_exists($projectsFile)) {
                 <i class="bi bi-jira"></i> Daily Jira Work Logger
             </div>
             <div>
+                <button type="button" class="btn btn-dark btn-sm fw-bold me-2 theme-toggle" onclick="toggleTheme()" title="Switch to dark mode">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </button>
                 <button type="button" class="btn btn-dark btn-sm fw-bold me-2" data-bs-toggle="modal" data-bs-target="#settingsModal">
                     <i class="bi bi-gear-fill"></i>
                 </button>
@@ -439,7 +718,7 @@ if (file_exists($projectsFile)) {
                                     autocomplete="off"
                                     onkeydown="return false;"
                                     onpaste="return false;"
-                                    style="cursor: pointer; background-color: #fff; caret-color: transparent;"
+                                    style="cursor: pointer; caret-color: transparent;"
                                 >
 
                             </div>
@@ -459,7 +738,7 @@ if (file_exists($projectsFile)) {
                                     autocomplete="off"
                                     onkeydown="return false;"
                                     onpaste="return false;"
-                                    style="cursor: pointer; background-color: #fff; caret-color: transparent;"
+                                    style="cursor: pointer; caret-color: transparent;"
                                 >
 
                             </div>
@@ -770,14 +1049,22 @@ function ensureEditorId(textarea) {
     }
 }
 
-function initWorkDescriptionEditor(textarea) {
+function tinymceSkinOptions() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {
+        skin: isDark ? 'oxide-dark' : 'oxide',
+        content_css: isDark ? 'dark' : 'default'
+    };
+}
+
+function initWorkDescriptionEditor(textarea, restoreContent) {
     if (!window.tinymce || !textarea) {
         return;
     }
 
     ensureEditorId(textarea);
 
-    tinymce.init({
+    tinymce.init(Object.assign({
         target: textarea,
         menubar: false,
         branding: false,
@@ -785,8 +1072,26 @@ function initWorkDescriptionEditor(textarea) {
         toolbar: 'bold italic | bullist numlist | removeformat',
         plugins: 'lists',
         height: 160
+    }, tinymceSkinOptions())).then(function (editors) {
+        if (restoreContent !== undefined && editors && editors[0]) {
+            editors[0].setContent(restoreContent);
+        }
     });
 }
+
+document.addEventListener('themechanged', function () {
+    if (!window.tinymce) {
+        return;
+    }
+    document.querySelectorAll('textarea.work-description').forEach(function (textarea) {
+        const editor = textarea.id ? tinymce.get(textarea.id) : null;
+        const content = editor ? editor.getContent() : '';
+        if (editor) {
+            editor.remove();
+        }
+        initWorkDescriptionEditor(textarea, content);
+    });
+});
 
 function removeWorkDescriptionEditor(textarea) {
     if (!window.tinymce || !textarea || !textarea.id) {
