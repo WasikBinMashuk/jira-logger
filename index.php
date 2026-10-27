@@ -361,6 +361,46 @@ if (file_exists($projectsFile)) {
             font-weight: 700;
         }
 
+        .today-summary {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid #e5eaf1;
+            border-radius: 18px;
+            padding: 16px 22px;
+            margin-bottom: 25px;
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .today-summary-title {
+            font-weight: 700;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: auto;
+        }
+
+        .today-summary-date {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .today-stat {
+            font-size: 0.85rem;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(20, 184, 166, 0.2));
+            color: #0f172a;
+            border: 1px solid rgba(14, 165, 233, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .theme-toggle {
             background: rgba(255, 255, 255, 0.16);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -403,6 +443,16 @@ if (file_exists($projectsFile)) {
         [data-theme="dark"] .task-row:hover {
             border-color: rgba(255, 255, 255, 0.16);
             background: #16202f;
+        }
+
+        [data-theme="dark"] .today-summary {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, #16202f 0%, #131c29 100%);
+        }
+
+        [data-theme="dark"] .today-stat {
+            color: #e2e8f0;
+            border-color: rgba(14, 165, 233, 0.35);
         }
 
         [data-theme="dark"] .task-number {
@@ -706,6 +756,15 @@ if (file_exists($projectsFile)) {
         </div>
 
         <div class="card-body">
+
+            <div class="today-summary">
+                <span class="today-summary-title">
+                    <i class="bi bi-calendar-check"></i> Today
+                    <span class="today-summary-date" id="todayDate"></span>
+                </span>
+                <span class="today-stat"><i class="bi bi-list-task"></i> Tasks: <span id="todayTaskCount">…</span></span>
+                <span class="today-stat"><i class="bi bi-clock-history"></i> Logged: <span id="todayLoggedTime">…</span></span>
+            </div>
 
             <form id="jiraForm">
 
@@ -1117,6 +1176,44 @@ function loadTeams() {
 
 loadTeams();
 
+function formatSeconds(secs) {
+    if (!secs) return '0h';
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    return h > 0 && m > 0 ? h + 'h ' + m + 'm' : h > 0 ? h + 'h' : m + 'm';
+}
+
+function loadTodaySummary() {
+    const now = new Date();
+    const today = now.getFullYear() + '-'
+        + String(now.getMonth() + 1).padStart(2, '0') + '-'
+        + String(now.getDate()).padStart(2, '0');
+
+    document.getElementById('todayDate').textContent = today;
+
+    const countEl = document.getElementById('todayTaskCount');
+    const timeEl  = document.getElementById('todayLoggedTime');
+
+    fetch('api/fetch_tasks.php', {
+        method: 'POST',
+        body: new URLSearchParams({ start_date_from: today, start_date_to: today })
+    })
+        .then(response => response.json())
+        .then(result => {
+            if (!result.success) {
+                countEl.textContent = timeEl.textContent = '–';
+                return;
+            }
+            countEl.textContent = (result.issues || []).length;
+            timeEl.textContent = formatSeconds(result.total_spent_secs || 0);
+        })
+        .catch(() => {
+            countEl.textContent = timeEl.textContent = '–';
+        });
+}
+
+loadTodaySummary();
+
 function ensureEditorId(textarea) {
     if (!textarea.id) {
         textarea.id = `work_description_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -1322,6 +1419,8 @@ document
                 await response.text();
 
             responseBox.innerHTML = result;
+
+            loadTodaySummary();
 
             // Clear the form if the request was successful
             this.reset();
